@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>macOS Desktop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            height: 100vh;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+        }
+
+        .desktop {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        /* Menu Bar */
+        .menu-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 24px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 13px;
+            color: white;
+            z-index: 1000;
+        }
+
+        .menu-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .menu-bar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .menu-item {
+            cursor: pointer;
+            padding: 2px 8px;
+            border-radius: 4px;
+            transition: background 0.15s ease;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .apple-logo {
+            font-size: 16px;
+        }
+
+        /* Desktop Icons */
+        .desktop-icons {
+            position: absolute;
+            top: 40px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .desktop-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.15s ease;
+            width: 80px;
+        }
+
+        .desktop-icon:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .desktop-icon-image {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #007aff 0%, #0051d5 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin-bottom: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .desktop-icon-name {
+            font-size: 12px;
+            color: white;
+            text-align: center;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Finder Window */
+        .finder-window {
+            position: absolute;
+            width: 900px;
+            height: 600px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: none;
+            flex-direction: column;
+        }
+
+        .finder-window.active {
+            display: flex;
+        }
+
+        .finder-window.minimized {
+            display: none;
+        }
+
+        .title-bar {
+            background: linear-gradient(to bottom, #e8e8e8 0%, #d4d4d4 100%);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #b8b8b8;
+            cursor: move;
+            user-select: none;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 8px;
+            margin-right: 16px;
+        }
+
+        .control-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 0.5px solid rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            color: rgba(0, 0, 0, 0);
+            transition: color 0.15s ease;
+        }
+
+        .control-btn:hover {
+            color: rgba(0, 0, 0, 0.6);
+        }
+
+        .close { background: #ff5f57; }
+        .minimize { background: #febc2e; }
+        .maximize { background: #28c840; }
+
+        .window-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #4a4a4a;
+            flex: 1;
+            text-align: center;
+            margin-right: 60px;
+            pointer-events: none;
+        }
+
+        .toolbar {
+            background: #fafafa;
+            padding: 12px 20px;
+            border-bottom: 1px solid #e5e5e5;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 6px;
+        }
+
+        .nav-btn {
+            width: 28px;
+            height: 22px;
+            background: white;
+            border: 1px solid #d1d1d1;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            color: #6e6e73;
+            transition: all 0.15s ease;
+        }
+
+        .nav-btn:hover {
+            background: #f5f5f5;
+            border-color: #b8b8b8;
+        }
+
+        .path {
+            flex: 1;
+            font-size: 13px;
+            color: #6e6e73;
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .view-options {
+            display: flex;
+            gap: 4px;
+        }
+
+        .view-btn {
+            width: 28px;
+            height: 22px;
+            background: white;
+            border: 1px solid #d1d1d1;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.15s ease;
+        }
+
+        .view-btn.active {
+            background: #007aff;
+            border-color: #007aff;
+            color: white;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 24px;
+            background: white;
+            overflow-y: auto;
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 20px;
+        }
+
+        .finder-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.15s ease;
+            text-decoration: none;
+        }
+
+        .finder-item:hover {
+            background: #f0f0f0;
+        }
+
+        .item-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #007aff 0%, #0051d5 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
+        }
+
+        .item-name {
+            font-size: 13px;
+            color: #1d1d1f;
+            text-align: center;
+            font-weight: 400;
+        }
+
+        .status-bar {
+            background: #fafafa;
+            padding: 6px 20px;
+            border-top: 1px solid #e5e5e5;
+            font-size: 11px;
+            color: #6e6e73;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Dock */
+        .dock {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 8px;
+            border-radius: 16px;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .dock-item {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #007aff 0%, #0051d5 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .dock-item:hover {
+            transform: translateY(-8px) scale(1.1);
+        }
+
+        .dock-item.active::before {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+        }
+
+        .dock-separator {
+            width: 1px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.3);
+            margin: 0 4px;
+        }
+
+        @media (max-width: 768px) {
+            .finder-window {
+                width: 100% !important;
+                height: 100% !important;
+                top: 0 !important;
+                left: 0 !important;
+                border-radius: 0;
+            }
+
+            .title-bar {
+                cursor: default;
+            }
+
+            .desktop-icons {
+                display: none;
+            }
+
+            .dock {
+                bottom: 0;
+                left: 0;
+                right: 0;
+                transform: none;
+                border-radius: 0;
+                border: none;
+                border-top: 1px solid rgba(255, 255, 255, 0.2);
+                justify-content: center;
+                padding: 12px 8px;
+            }
+
+            .dock-item {
+                width: 48px;
+                height: 48px;
+                font-size: 24px;
+            }
+
+            .dock-item:hover {
+                transform: scale(1.05);
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .finder-window {
+                background: #2c2c2e;
+            }
+
+            .title-bar {
+                background: linear-gradient(to bottom, #323234 0%, #2c2c2e 100%);
+                border-bottom: 1px solid #1c1c1e;
+            }
+
+            .window-title {
+                color: #e5e5e7;
+            }
+
+            .toolbar {
+                background: #2c2c2e;
+                border-bottom: 1px solid #1c1c1e;
+            }
+
+            .nav-btn, .view-btn {
+                background: #3a3a3c;
+                border-color: #1c1c1e;
+                color: #98989d;
+            }
+
+            .view-btn.active {
+                background: #0a84ff;
+                border-color: #0a84ff;
+            }
+
+            .content-area {
+                background: #2c2c2e;
+            }
+
+            .finder-item:hover {
+                background: #3a3a3c;
+            }
+
+            .item-name {
+                color: #e5e5e7;
+            }
+
+            .status-bar {
+                background: #2c2c2e;
+                border-top: 1px solid #1c1c1e;
+                color: #98989d;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="desktop">
+        <!-- Menu Bar -->
+        <div class="menu-bar">
+            <div class="menu-bar-left">
+                <div class="menu-item apple-logo">🍎</div>
+                <div class="menu-item"><strong>Finder</strong></div>
+                <div class="menu-item">File</div>
+                <div class="menu-item">Edit</div>
+                <div class="menu-item">View</div>
+                <div class="menu-item">Go</div>
+                <div class="menu-item">Window</div>
+                <div class="menu-item">Help</div>
+            </div>
+            <div class="menu-bar-right">
+                <div class="menu-item">🔋</div>
+                <div class="menu-item">📶</div>
+                <div class="menu-item" id="clock">12:00</div>
+            </div>
+        </div>
+
+        <!-- Desktop Icons -->
+        <div class="desktop-icons">
+            <div class="desktop-icon" data-app="finder">
+                <div class="desktop-icon-image">📁</div>
+                <div class="desktop-icon-name">Demos</div>
+            </div>
+        </div>
+
+        <!-- Finder Window -->
+        <div class="finder-window" id="finderWindow">
+            <div class="title-bar" id="titleBar">
+                <div class="window-controls">
+                    <div class="control-btn close" id="closeBtn">✕</div>
+                    <div class="control-btn minimize" id="minimizeBtn">−</div>
+                    <div class="control-btn maximize" id="maximizeBtn">+</div>
+                </div>
+                <div class="window-title">Demos</div>
+            </div>
+
+            <div class="toolbar">
+                <div class="nav-buttons">
+                    <div class="nav-btn">◂</div>
+                    <div class="nav-btn">▸</div>
+                </div>
+                <div class="path">
+                    <span>📁</span>
+                    <span>Demos</span>
+                </div>
+                <div class="view-options">
+                    <div class="view-btn active">⊞</div>
+                    <div class="view-btn">≡</div>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="items-grid">
+                    <a href="dvd/" class="finder-item">
+                        <div class="item-icon">📀</div>
+                        <div class="item-name">DVD Screensaver</div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="status-bar">
+                <span>1 item</span>
+                <span>980 GB available</span>
+            </div>
+        </div>
+
+        <!-- Dock -->
+        <div class="dock">
+            <div class="dock-item" data-app="finder" id="finderDock">📁</div>
+            <div class="dock-item">🧭</div>
+            <div class="dock-item">✉️</div>
+            <div class="dock-item">📅</div>
+            <div class="dock-separator"></div>
+            <div class="dock-item">⚙️</div>
+        </div>
+    </div>
+
+    <script>
+        // Clock
+        function updateClock() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('clock').textContent = `${hours}:${minutes}`;
+        }
+        updateClock();
+        setInterval(updateClock, 60000);
+
+        // Window dragging
+        const finderWindow = document.getElementById('finderWindow');
+        const titleBar = document.getElementById('titleBar');
+        let isDragging = false;
+        let currentX;
+        let currentY;
+        let initialX;
+        let initialY;
+        let xOffset = 0;
+        let yOffset = 0;
+
+        // Center window on load
+        function centerWindow() {
+            const windowWidth = finderWindow.offsetWidth;
+            const windowHeight = finderWindow.offsetHeight;
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            
+            xOffset = (screenWidth - windowWidth) / 2;
+            yOffset = (screenHeight - windowHeight) / 2;
+            
+            finderWindow.style.left = xOffset + 'px';
+            finderWindow.style.top = yOffset + 'px';
+        }
+
+        titleBar.addEventListener('mousedown', dragStart);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', dragEnd);
+
+        function dragStart(e) {
+            if (window.innerWidth <= 768) return; // Disable dragging on mobile
+            
+            initialX = e.clientX - xOffset;
+            initialY = e.clientY - yOffset;
+
+            if (e.target === titleBar || titleBar.contains(e.target)) {
+                if (!e.target.classList.contains('control-btn')) {
+                    isDragging = true;
+                }
+            }
+        }
+
+        function drag(e) {
+            if (isDragging) {
+                e.preventDefault();
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+
+                xOffset = currentX;
+                yOffset = currentY;
+
+                setTranslate(currentX, currentY, finderWindow);
+            }
+        }
+
+        function dragEnd(e) {
+            initialX = currentX;
+            initialY = currentY;
+            isDragging = false;
+        }
+
+        function setTranslate(xPos, yPos, el) {
+            el.style.left = xPos + 'px';
+            el.style.top = yPos + 'px';
+        }
+
+        // Window controls
+        const closeBtn = document.getElementById('closeBtn');
+        const minimizeBtn = document.getElementById('minimizeBtn');
+        const maximizeBtn = document.getElementById('maximizeBtn');
+        const finderDock = document.getElementById('finderDock');
+
+        closeBtn.addEventListener('click', () => {
+            finderWindow.classList.remove('active');
+            finderDock.classList.remove('active');
+        });
+
+        minimizeBtn.addEventListener('click', () => {
+            finderWindow.classList.add('minimized');
+            finderWindow.classList.remove('active');
+        });
+
+        maximizeBtn.addEventListener('click', () => {
+            // Toggle maximize (simplified)
+            if (finderWindow.style.width === '100vw') {
+                finderWindow.style.width = '900px';
+                finderWindow.style.height = '600px';
+                centerWindow();
+            } else {
+                finderWindow.style.width = '100vw';
+                finderWindow.style.height = 'calc(100vh - 32px)';
+                finderWindow.style.left = '0';
+                finderWindow.style.top = '24px';
+            }
+        });
+
+        // Open Finder from dock or desktop icon
+        function openFinder() {
+            finderWindow.classList.remove('minimized');
+            finderWindow.classList.add('active');
+            finderDock.classList.add('active');
+            if (window.innerWidth > 768) {
+                centerWindow();
+            }
+        }
+
+        finderDock.addEventListener('click', openFinder);
+        
+        document.querySelectorAll('.desktop-icon[data-app="finder"]').forEach(icon => {
+            icon.addEventListener('dblclick', openFinder);
+        });
+
+        // View buttons
+        const viewBtns = document.querySelectorAll('.view-btn');
+        viewBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                viewBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // Initialize
+        if (window.innerWidth > 768) {
+            centerWindow();
+        }
+    </script>
+</body>
+</html>
