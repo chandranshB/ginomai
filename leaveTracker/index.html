@@ -111,7 +111,7 @@
       // --- STATE HOOKS ---
       const [inputMode, setInputMode] = useState('attendedMissed'); // 'totalAttended', 'totalMissed', 'attendedMissed'
       
-      // State for all possible inputs
+      // State for all possible inputs - these persist across mode changes
       const [totalClasses, setTotalClasses] = useState('');
       const [classesAttended, setClassesAttended] = useState('');
       const [classesMissed, setClassesMissed] = useState('');
@@ -133,6 +133,10 @@
                setStats(null); return; 
             }
             missed = total - attended;
+            // Auto-populate classesMissed for use in other modes
+            if (total > 0 && attended >= 0) {
+              setClassesMissed(String(missed));
+            }
           } else if (inputMode === 'totalMissed') {
             total = parseInt(totalClasses) || 0;
             missed = parseInt(classesMissed) || 0;
@@ -140,10 +144,18 @@
               setStats(null); return;
             }
             attended = total - missed;
+            // Auto-populate classesAttended for use in other modes
+            if (total > 0 && missed >= 0) {
+              setClassesAttended(String(attended));
+            }
           } else if (inputMode === 'attendedMissed') {
             attended = parseInt(classesAttended) || 0;
             missed = parseInt(classesMissed) || 0;
             total = attended + missed;
+            // Auto-populate totalClasses for use in other modes
+            if (attended >= 0 && missed >= 0) {
+              setTotalClasses(String(total));
+            }
           }
         } catch (error) {
           console.warn(error.message);
@@ -183,13 +195,7 @@
         });
       }, [totalClasses, classesAttended, classesMissed, inputMode]);
       
-      // --- Reset inputs when mode changes ---
-      useEffect(() => {
-        setTotalClasses('');
-        setClassesAttended('');
-        setClassesMissed('');
-        setStats(null);
-      }, [inputMode]);
+      // --- No need to reset inputs when mode changes - we want to retain them ---
 
       // --- HELPER FUNCTIONS FOR STYLING ---
       const getStatusColor = (percentage) => {
