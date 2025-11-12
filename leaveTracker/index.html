@@ -18,7 +18,7 @@
     const { useState, useEffect } = React;
 
     // --- Icon Components (recreated as SVGs) ---
-    // (Icons are unchanged, so I'll snip them for brevity)
+    // (Snipped for brevity)
     const Calendar = ({ className = '', size = 24, strokeWidth = 2 }) => (
       <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={`lucide lucide-calendar ${className}`}>
         <rect width="18" height="18" x="3" y="4" rx="2" ry="2" /> <line x1="16" x2="16" y1="2" y2="6" /> <line x1="8" x2="8" y1="2" y2="6" /> <line x1="3" x2="21" y1="10" y2="10" />
@@ -45,17 +45,14 @@
       // --- STATE HOOKS ---
       const [inputMode, setInputMode] = useState('attendedMissed'); // 'totalAttended', 'totalMissed', 'attendedMissed'
       
-      // State for all possible inputs
       const [totalClasses, setTotalClasses] = useState('');
       const [classesAttended, setClassesAttended] = useState('');
       const [classesMissed, setClassesMissed] = useState('');
 
-      // Universal stats state
       const [stats, setStats] = useState(null);
-      // *** NEW ***: State for our sassy error messages
       const [errorMessage, setErrorMessage] = useState(null);
 
-      // *** NEW ***: Pool of sarcastic messages
+      // Pool of sarcastic messages
       const sarcasticMessages = [
         "Attended more classes than exist? Are you a time traveler?",
         "Missed more classes than the total? Impressive, in a weird way.",
@@ -68,9 +65,27 @@
       ];
     
       const getRandomSarcasticMessage = () => sarcasticMessages[Math.floor(Math.random() * sarcasticMessages.length)];
+      
+      const floatMessages = [
+        "Oh, 0.5 of a class? Did the professor just... dissolve?",
+        "Fractional classes? Is this quantum mechanics?",
+        "I only speak in whole numbers. This .1, .2, .3 stuff is too advanced.",
+        "Partial credit for a partial class? Nice try."
+      ];
+      
+      const getRandomFloatMessage = () => floatMessages[Math.floor(Math.random() * floatMessages.length)];
 
+      // --- CALCULATION LOGIC ---
       useEffect(() => {
         setErrorMessage(null);
+        
+        const inputs = [totalClasses, classesAttended, classesMissed];
+        if (inputs.some(val => val && val.includes('.'))) {
+          setErrorMessage(getRandomFloatMessage());
+          setStats(null);
+          return; // Stop processing
+        }
+        // --- *** END NEW VALIDATION *** ---
         
         let total = 0;
         let attended = 0;
@@ -88,11 +103,11 @@
             total = in_total || 0;
             attended = in_attended || 0;
 
-            if (attended < 0 || total < 0) { // Validation
+            if (attended < 0 || total < 0) { 
               setErrorMessage("Negative classes? Really?"); setStats(null); return;
             }
             if (attended > total && total > 0) {
-               setErrorMessage("Attended more classes than exist? Time traveler?"); // Sarcasm!
+               setErrorMessage("Attended more classes than exist? Time traveler?");
                setStats(null); return; 
             }
             missed = total - attended;
@@ -100,18 +115,17 @@
               setClassesMissed(String(missed));
             }
           } else if (inputMode === 'totalMissed') {
-            // Check for invalid text input
             if ((totalClasses && isNaN(in_total)) || (classesMissed && isNaN(in_missed))) {
               setErrorMessage(getRandomSarcasticMessage()); setStats(null); return;
             }
             total = in_total || 0;
             missed = in_missed || 0;
             
-            if (missed < 0 || total < 0) { // Validation
+            if (missed < 0 || total < 0) {
               setErrorMessage("Negative classes? Really?"); setStats(null); return;
             }
             if (missed > total && total > 0) {
-              setErrorMessage("Missed more classes than the total? Impressive."); // MORE Sarcasm!
+              setErrorMessage("Missed more classes than the total? Impressive.");
               setStats(null); return;
             }
             attended = total - missed;
@@ -125,7 +139,7 @@
             attended = in_attended || 0;
             missed = in_missed || 0;
 
-            if (attended < 0 || missed < 0) { // Validation
+            if (attended < 0 || missed < 0) {
               setErrorMessage("Negative classes? Really?"); setStats(null); return;
             }
 
@@ -136,7 +150,7 @@
           }
         } catch (error) {
           console.warn(error.message);
-          setErrorMessage(getRandomSarcasticMessage()); // Catch-all sarcasm hehehaha
+          setErrorMessage(getRandomSarcasticMessage());
           setStats(null);
           return;
         }
@@ -147,17 +161,14 @@
         }
         
         const currentPercentage = total > 0 ? (attended / total) * 100 : 0;
-
         let classesToAttend = 0;
         if (currentPercentage < 75) {
           classesToAttend = Math.ceil((0.75 * total - attended) / 0.25);
         }
-
         let canMiss = 0;
         if (currentPercentage >= 75) {
           canMiss = Math.floor((attended - 0.75 * total) / 0.75);
         }
-
         const futurePercentageAfter5 = ((attended + 5) / (total + 5)) * 100;
         const futurePercentageAfter10 = ((attended + 10) / (total + 10)) * 100;
 
@@ -173,13 +184,12 @@
         });
       }, [totalClasses, classesAttended, classesMissed, inputMode]);
       
-      // --- HELPER FUNCTIONS FOR STYLING ---
+
       const getStatusColor = (percentage) => {
         if (percentage >= 75) return 'text-green-500';
         if (percentage >= 65) return 'text-yellow-500';
         return 'text-red-500';
       };
-
       const getStatusMessage = (percentage) => {
         if (percentage >= 85) return 'Excellent!';
         if (percentage >= 75) return 'Safe Zone';
@@ -349,7 +359,6 @@
                 </div>
               </div>
             </div>
-
             {errorMessage && (
               <div className="text-center px-6 py-1 text-sm text-red-600 animate-fade-in -mt-2">
                 {errorMessage}
