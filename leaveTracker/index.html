@@ -4,105 +4,39 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Attendance Calculator</title>
-  <!-- Load Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Load React & ReactDOM -->
   <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
-  <!-- Load Babel to transpile JSX in the browser -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
 
-  <!-- This is where the React app will be rendered -->
   <div id="root"></div>
 
-  <!-- This script contains our React app -->
   <script type="text/babel">
     // We get 'useState' and 'useEffect' from the 'React' object
     const { useState, useEffect } = React;
 
     // --- Icon Components (recreated as SVGs) ---
-    // We can't import 'lucide-react', so we define the icons as components
+    // (Icons are unchanged, so I'll snip them for brevity)
     const Calendar = ({ className = '', size = 24, strokeWidth = 2 }) => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width={size}
-        height={size}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={strokeWidth}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className={`lucide lucide-calendar ${className}`}
-      >
-        <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-        <line x1="16" x2="16" y1="2" y2="6" />
-        <line x1="8" x2="8" y1="2" y2="6" />
-        <line x1="3" x2="21" y1="10" y2="10" />
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={`lucide lucide-calendar ${className}`}>
+        <rect width="18" height="18" x="3" y="4" rx="2" ry="2" /> <line x1="16" x2="16" y1="2" y2="6" /> <line x1="8" x2="8" y1="2" y2="6" /> <line x1="3" x2="21" y1="10" y2="10" />
       </svg>
     );
-
     const Target = ({ className = '', size = 24, strokeWidth = 2 }) => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width={size}
-        height={size}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={strokeWidth}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className={`lucide lucide-target ${className}`}
-      >
-        <circle cx="12" cy="12" r="10" />
-        <circle cx="12" cy="12" r="6" />
-        <circle cx="12" cy="12" r="2" />
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={`lucide lucide-target ${className}`}>
+        <circle cx="12" cy="12" r="10" /> <circle cx="12" cy="12" r="6" /> <circle cx="12" cy="12" r="2" />
       </svg>
     );
-
     const Sparkles = ({ className = '', size = 24, strokeWidth = 2 }) => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width={size}
-        height={size}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={strokeWidth}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className={`lucide lucide-sparkles ${className}`}
-      >
-        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-        <path d="M5 3v4" />
-        <path d="M19 17v4" />
-        <path d="M3 5h4" />
-        <path d="M17 19h4" />
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={`lucide lucide-sparkles ${className}`}>
+        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" /> <path d="M5 3v4" /> <path d="M19 17v4" /> <path d="M3 5h4" /> <path d="M17 19h4" />
       </svg>
     );
-
     const ClipboardList = ({ className = '', size = 24, strokeWidth = 2 }) => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width={size}
-        height={size}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={strokeWidth}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className={`lucide lucide-clipboard-list ${className}`}
-      >
-        <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
-        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-        <path d="M12 11h4" />
-        <path d="M12 16h4" />
-        <path d="M8 11h.01" />
-        <path d="M8 16h.01" />
+      <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={`lucide lucide-clipboard-list ${className}`}>
+        <rect width="8" height="4" x="8" y="2" rx="1" ry="1" /> <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /> <path d="M12 11h4" /> <path d="M12 16h4" /> <path d="M8 11h.01" /> <path d="M8 16h.01" />
       </svg>
     );
 
@@ -111,54 +45,98 @@
       // --- STATE HOOKS ---
       const [inputMode, setInputMode] = useState('attendedMissed'); // 'totalAttended', 'totalMissed', 'attendedMissed'
       
-      // State for all possible inputs - these persist across mode changes
+      // State for all possible inputs
       const [totalClasses, setTotalClasses] = useState('');
       const [classesAttended, setClassesAttended] = useState('');
       const [classesMissed, setClassesMissed] = useState('');
 
       // Universal stats state
       const [stats, setStats] = useState(null);
+      // *** NEW ***: State for our sassy error messages
+      const [errorMessage, setErrorMessage] = useState(null);
 
-      // --- CALCULATION LOGIC ---
+      // *** NEW ***: Pool of sarcastic messages
+      const sarcasticMessages = [
+        "Attended more classes than exist? Are you a time traveler?",
+        "Missed more classes than the total? Impressive, in a weird way.",
+        "Ah, negative classes. Did you *un-learn* something?",
+        "Your math is... creative. Let's try real numbers.",
+        "Going for the world record in 'classes missed'?",
+        "Did a cat walk on your keyboard? Try again.",
+        "I'm just a calculator, not a magician. I can't make sense of this.",
+        "Please enter *numbers*. You know, 1, 2, 3...",
+      ];
+    
+      const getRandomSarcasticMessage = () => sarcasticMessages[Math.floor(Math.random() * sarcasticMessages.length)];
+
       useEffect(() => {
+        setErrorMessage(null);
+        
         let total = 0;
         let attended = 0;
         let missed = 0;
         
+        const in_total = parseInt(totalClasses);
+        const in_attended = parseInt(classesAttended);
+        const in_missed = parseInt(classesMissed);
+        
         try {
           if (inputMode === 'totalAttended') {
-            total = parseInt(totalClasses) || 0;
-            attended = parseInt(classesAttended) || 0;
+            if ((totalClasses && isNaN(in_total)) || (classesAttended && isNaN(in_attended))) {
+              setErrorMessage(getRandomSarcasticMessage()); setStats(null); return;
+            }
+            total = in_total || 0;
+            attended = in_attended || 0;
+
+            if (attended < 0 || total < 0) { // Validation
+              setErrorMessage("Negative classes? Really?"); setStats(null); return;
+            }
             if (attended > total && total > 0) {
+               setErrorMessage("Attended more classes than exist? Time traveler?"); // Sarcasm!
                setStats(null); return; 
             }
             missed = total - attended;
-            // Auto-populate classesMissed for use in other modes
             if (total > 0 && attended >= 0) {
               setClassesMissed(String(missed));
             }
           } else if (inputMode === 'totalMissed') {
-            total = parseInt(totalClasses) || 0;
-            missed = parseInt(classesMissed) || 0;
+            // Check for invalid text input
+            if ((totalClasses && isNaN(in_total)) || (classesMissed && isNaN(in_missed))) {
+              setErrorMessage(getRandomSarcasticMessage()); setStats(null); return;
+            }
+            total = in_total || 0;
+            missed = in_missed || 0;
+            
+            if (missed < 0 || total < 0) { // Validation
+              setErrorMessage("Negative classes? Really?"); setStats(null); return;
+            }
             if (missed > total && total > 0) {
+              setErrorMessage("Missed more classes than the total? Impressive."); // MORE Sarcasm!
               setStats(null); return;
             }
             attended = total - missed;
-            // Auto-populate classesAttended for use in other modes
             if (total > 0 && missed >= 0) {
               setClassesAttended(String(attended));
             }
           } else if (inputMode === 'attendedMissed') {
-            attended = parseInt(classesAttended) || 0;
-            missed = parseInt(classesMissed) || 0;
+            if ((classesAttended && isNaN(in_attended)) || (classesMissed && isNaN(in_missed))) {
+              setErrorMessage(getRandomSarcasticMessage()); setStats(null); return;
+            }
+            attended = in_attended || 0;
+            missed = in_missed || 0;
+
+            if (attended < 0 || missed < 0) { // Validation
+              setErrorMessage("Negative classes? Really?"); setStats(null); return;
+            }
+
             total = attended + missed;
-            // Auto-populate totalClasses for use in other modes
             if (attended >= 0 && missed >= 0) {
               setTotalClasses(String(total));
             }
           }
         } catch (error) {
           console.warn(error.message);
+          setErrorMessage(getRandomSarcasticMessage()); // Catch-all sarcasm hehehaha
           setStats(null);
           return;
         }
@@ -195,8 +173,6 @@
         });
       }, [totalClasses, classesAttended, classesMissed, inputMode]);
       
-      // --- No need to reset inputs when mode changes - we want to retain them ---
-
       // --- HELPER FUNCTIONS FOR STYLING ---
       const getStatusColor = (percentage) => {
         if (percentage >= 75) return 'text-green-500';
@@ -219,29 +195,15 @@
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"' 
           }}
         >
-          {/* CSS for animations and hiding number input arrows */}
           <style>{`
             @keyframes fadeIn {
-              from { 
-                opacity: 0; 
-                transform: translateY(10px); 
-              }
-              to { 
-                opacity: 1; 
-                transform: translateY(0); 
-              }
+              from { opacity: 0; transform: translateY(10px); }
+              to { opacity: 1; transform: translateY(0); }
             }
-            .animate-fade-in {
-              animation: fadeIn 0.5s ease-out forwards;
-            }
+            .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
             input::-webkit-outer-spin-button,
-            input::-webkit-inner-spin-button {
-              -webkit-appearance: none;
-              margin: 0;
-            }
-            input[type=number] {
-              -moz-appearance: textfield;
-            }
+            input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+            input[type=number] { -moz-appearance: textfield; }
           `}</style>
           
           <div className="max-w-md md:max-w-xl mx-auto space-y-4">
@@ -253,7 +215,6 @@
               </h1>
             </header>
 
-            {/* --- Input Section --- */}
             <div>
               <h2 className="text-xs font-semibold text-gray-600 uppercase px-6 pb-2">
                 Enter Details
@@ -298,7 +259,6 @@
                     </div>
                   </div>
 
-                  {/* --- CONDITIONAL INPUTS --- */}
                   
                   {inputMode === 'totalAttended' && (
                     <>
@@ -390,7 +350,12 @@
               </div>
             </div>
 
-            {/* --- Results Section --- */}
+            {errorMessage && (
+              <div className="text-center px-6 py-1 text-sm text-red-600 animate-fade-in -mt-2">
+                {errorMessage}
+              </div>
+            )}
+
             {stats && (
               <div className="space-y-4 animate-fade-in">
                 <h2 className="text-xs font-semibold text-gray-600 uppercase px-6 pb-2 pt-2">
@@ -495,8 +460,7 @@
               </div>
             )}
 
-            {/* Empty State */}
-            {!stats && (
+            {!stats && !errorMessage && (
               <div className="text-center py-20 text-gray-500">
                 <ClipboardList className="w-16 h-16 mx-auto text-gray-400" />
                 <p className="mt-4 text-lg">Enter your details</p>
