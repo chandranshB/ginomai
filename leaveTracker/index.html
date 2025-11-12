@@ -149,20 +149,21 @@
       return themes[design][isDarkMode ? 'dark' : 'light'];
     };
 
-    // --- Reusable Components ---
+// --- Reusable Components ---
 
     function SegmentedControl({ options, value, onChange, design, theme }) {
       const activeIndex = useMemo(() => options.findIndex(o => o.value === value), [options, value]);
       const itemWidth = 100 / options.length;
 
       if (design === 'cupertino') {
+        const totalPadding = 4; // p-[2px] = 2px left + 2px right
         return (
           <div className={`relative flex w-full ${theme.tertiaryBg} rounded-lg p-[2px]`}>
             <div
-              className={`absolute top-[2px] bottom-[2px] ${theme.activeSegmentBg} rounded-md shadow transition-all duration-300 ease-in-out`}
+              className={`absolute top-[2px] bottom-[2px] left-[2px] ${theme.activeSegmentBg} rounded-md shadow transition-all duration-300 ease-in-out`} // <-- ADDED left-[2px]
               style={{
-                width: `calc(${itemWidth}% - 2px)`,
-                transform: `translateX(calc(${activeIndex * 100}% + ${activeIndex * 2}px))`,
+                width: `calc(${itemWidth}% - ${totalPadding / options.length}px)`, // <-- CHANGED
+                transform: `translateX(calc(${activeIndex * 100}%))`, // <-- CHANGED
               }}
             />
             {options.map((option) => (
@@ -181,13 +182,14 @@
       }
 
       if (design === 'material') {
+        const totalPadding = 8; // p-1 = 4px left + 4px right
         return (
           <div className={`relative flex w-full ${theme.tertiaryBg} rounded-full p-1`}>
             <div
-              className={`absolute top-1 bottom-1 ${theme.activeSegmentBg} rounded-full shadow-md transition-all duration-300 ease-in-out`}
+              className={`absolute top-1 bottom-1 left-1 ${theme.activeSegmentBg} rounded-full shadow-md transition-all duration-300 ease-in-out`} // <-- ADDED left-1
               style={{
-                width: `calc(${itemWidth}% - 2px)`,
-                transform: `translateX(${activeIndex * 100}%)`,
+                width: `calc(${itemWidth}% - ${totalPadding / options.length}px)`, // <-- CHANGED
+                transform: `translateX(${activeIndex * 100}%)`, // (This was already correct)
               }}
             />
             {options.map((option) => (
